@@ -1,13 +1,16 @@
 use crate::{Buckets, BUCKETS};
 
-pub(crate) trait BucketZip {
-    type Zip;
+pub trait BucketZip {
+    type Zip: 'static + Send;
 
     fn zip(self) -> Vec<Self::Zip>;
     fn unzip(self, zip: Vec<Self::Zip>);
 }
 
-impl<I> BucketZip for &mut Buckets<I> {
+impl<I> BucketZip for &mut Buckets<I>
+where
+    I: 'static + Send,
+{
     type Zip = I;
 
     fn zip(self) -> Vec<Self::Zip> {
@@ -19,7 +22,11 @@ impl<I> BucketZip for &mut Buckets<I> {
     }
 }
 
-impl<I0, I1> BucketZip for (&mut Buckets<I0>, &mut Buckets<I1>) {
+impl<I0, I1> BucketZip for (&mut Buckets<I0>, &mut Buckets<I1>)
+where
+    I0: 'static + Send,
+    I1: 'static + Send,
+{
     type Zip = (I0, I1);
 
     fn zip(self) -> Vec<Self::Zip> {
@@ -49,7 +56,12 @@ impl<I0, I1> BucketZip for (&mut Buckets<I0>, &mut Buckets<I1>) {
     }
 }
 
-impl<I0, I1, I2> BucketZip for (&mut Buckets<I0>, &mut Buckets<I1>, &mut Buckets<I2>) {
+impl<I0, I1, I2> BucketZip for (&mut Buckets<I0>, &mut Buckets<I1>, &mut Buckets<I2>)
+where
+    I0: 'static + Send,
+    I1: 'static + Send,
+    I2: 'static + Send,
+{
     type Zip = (I0, I1, I2);
 
     fn zip(self) -> Vec<Self::Zip> {
@@ -90,6 +102,11 @@ impl<I0, I1, I2, I3> BucketZip
         &mut Buckets<I2>,
         &mut Buckets<I3>,
     )
+where
+    I0: 'static + Send,
+    I1: 'static + Send,
+    I2: 'static + Send,
+    I3: 'static + Send,
 {
     type Zip = (I0, I1, I2, I3);
 

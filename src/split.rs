@@ -35,6 +35,10 @@ impl<Item> Split<Item> {
         Split { splits, buckets }
     }
 
+    pub(crate) fn raw(splits: Vec<Vec<Item>>, buckets: Vec<usize>) -> Self {
+        Split { splits, buckets }
+    }
+
     pub fn join(self) -> Vec<Item> {
         let mut splits = self
             .splits
@@ -46,6 +50,10 @@ impl<Item> Split<Item> {
             .into_iter()
             .map(|bucket| splits[bucket].next().unwrap())
             .collect()
+    }
+
+    pub(crate) fn take(self) -> (Vec<Vec<Item>>, Vec<usize>) {
+        (self.splits, self.buckets)
     }
 }
 
