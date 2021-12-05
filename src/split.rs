@@ -6,7 +6,7 @@ use std::{iter, ops::Fn};
 
 pub struct Split<Item> {
     splits: Vec<Vec<Item>>,
-    buckets: Vec<usize>,
+    indexes: Vec<usize>,
 }
 
 impl<Item> Split<Item> {
@@ -32,11 +32,17 @@ impl<Item> Split<Item> {
             buckets.push(bucket);
         }
 
-        Split { splits, buckets }
+        Split {
+            splits,
+            indexes: buckets,
+        }
     }
 
     pub(crate) fn raw(splits: Vec<Vec<Item>>, buckets: Vec<usize>) -> Self {
-        Split { splits, buckets }
+        Split {
+            splits,
+            indexes: buckets,
+        }
     }
 
     pub fn join(self) -> Vec<Item> {
@@ -46,14 +52,14 @@ impl<Item> Split<Item> {
             .map(|split| split.into_iter())
             .collect::<Vec<_>>();
 
-        self.buckets
+        self.indexes
             .into_iter()
             .map(|bucket| splits[bucket].next().unwrap())
             .collect()
     }
 
     pub(crate) fn take(self) -> (Vec<Vec<Item>>, Vec<usize>) {
-        (self.splits, self.buckets)
+        (self.splits, self.indexes)
     }
 }
 
