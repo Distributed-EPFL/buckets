@@ -23,26 +23,20 @@ impl<Item> Split<Item> {
             .take(BUCKETS)
             .collect::<Vec<_>>();
 
-        let mut buckets = Vec::new();
+        let mut indexes = Vec::new();
 
         for item in items {
-            let bucket = xx::hash32(key(&item).represent()) as usize % BUCKETS;
+            let index = xx::hash32(key(&item).represent()) as usize % BUCKETS;
 
-            splits[bucket].push(item);
-            buckets.push(bucket);
+            splits[index].push(item);
+            indexes.push(index);
         }
 
-        Split {
-            splits,
-            indexes: buckets,
-        }
+        Split { splits, indexes }
     }
 
-    pub(crate) fn raw(splits: Vec<Vec<Item>>, buckets: Vec<usize>) -> Self {
-        Split {
-            splits,
-            indexes: buckets,
-        }
+    pub(crate) fn raw(splits: Vec<Vec<Item>>, indexes: Vec<usize>) -> Self {
+        Split { splits, indexes }
     }
 
     pub fn join(self) -> Vec<Item> {
@@ -54,11 +48,11 @@ impl<Item> Split<Item> {
 
         self.indexes
             .into_iter()
-            .map(|bucket| splits[bucket].next().unwrap())
+            .map(|inex| splits[inex].next().unwrap())
             .collect()
     }
 
-    pub(crate) fn take(self) -> (Vec<Vec<Item>>, Vec<usize>) {
+    pub(crate) fn explode(self) -> (Vec<Vec<Item>>, Vec<usize>) {
         (self.splits, self.indexes)
     }
 }
