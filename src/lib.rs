@@ -7,9 +7,9 @@ mod splittable;
 
 pub const BUCKETS: usize = 64;
 
-pub use apply::apply;
-pub use bucket_zip::BucketZip;
-pub use buckets::Buckets;
-pub use key::Key;
-pub use split::Split;
-pub use splittable::Splittable;
+pub use crate::apply::apply;
+pub use crate::bucket_zip::BucketZip;
+pub use crate::buckets::Buckets;
+pub use crate::key::Key;
+pub use crate::split::Split;
+pub use crate::splittable::Splittable;

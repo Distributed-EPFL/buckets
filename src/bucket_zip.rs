@@ -3,8 +3,8 @@ use crate::{Buckets, BUCKETS};
 pub trait BucketZip {
     type Zip: 'static + Send;
 
-    fn zip(self) -> Vec<Self::Zip>;
-    fn unzip(self, zip: Vec<Self::Zip>);
+    fn zip(&mut self) -> Vec<Self::Zip>;
+    fn unzip(&mut self, zip: Vec<Self::Zip>);
 }
 
 impl<I> BucketZip for &mut Buckets<I>
@@ -13,11 +13,11 @@ where
 {
     type Zip = I;
 
-    fn zip(self) -> Vec<Self::Zip> {
+    fn zip(&mut self) -> Vec<Self::Zip> {
         self.take_buckets()
     }
 
-    fn unzip(self, zip: Vec<Self::Zip>) {
+    fn unzip(&mut self, zip: Vec<Self::Zip>) {
         self.restore_buckets(zip);
     }
 }
@@ -29,7 +29,7 @@ where
 {
     type Zip = (I0, I1);
 
-    fn zip(self) -> Vec<Self::Zip> {
+    fn zip(&mut self) -> Vec<Self::Zip> {
         let mut b0 = self.0.take_buckets().into_iter();
         let mut b1 = self.1.take_buckets().into_iter();
 
@@ -42,7 +42,7 @@ where
         zip
     }
 
-    fn unzip(self, zip: Vec<Self::Zip>) {
+    fn unzip(&mut self, zip: Vec<Self::Zip>) {
         let mut b0 = Vec::with_capacity(BUCKETS);
         let mut b1 = Vec::with_capacity(BUCKETS);
 
@@ -64,7 +64,7 @@ where
 {
     type Zip = (I0, I1, I2);
 
-    fn zip(self) -> Vec<Self::Zip> {
+    fn zip(&mut self) -> Vec<Self::Zip> {
         let mut b0 = self.0.take_buckets().into_iter();
         let mut b1 = self.1.take_buckets().into_iter();
         let mut b2 = self.2.take_buckets().into_iter();
@@ -78,7 +78,7 @@ where
         zip
     }
 
-    fn unzip(self, zip: Vec<Self::Zip>) {
+    fn unzip(&mut self, zip: Vec<Self::Zip>) {
         let mut b0 = Vec::with_capacity(BUCKETS);
         let mut b1 = Vec::with_capacity(BUCKETS);
         let mut b2 = Vec::with_capacity(BUCKETS);
@@ -110,7 +110,7 @@ where
 {
     type Zip = (I0, I1, I2, I3);
 
-    fn zip(self) -> Vec<Self::Zip> {
+    fn zip(&mut self) -> Vec<Self::Zip> {
         let mut b0 = self.0.take_buckets().into_iter();
         let mut b1 = self.1.take_buckets().into_iter();
         let mut b2 = self.2.take_buckets().into_iter();
@@ -130,7 +130,7 @@ where
         zip
     }
 
-    fn unzip(self, zip: Vec<Self::Zip>) {
+    fn unzip(&mut self, zip: Vec<Self::Zip>) {
         let mut b0 = Vec::with_capacity(BUCKETS);
         let mut b1 = Vec::with_capacity(BUCKETS);
         let mut b2 = Vec::with_capacity(BUCKETS);
