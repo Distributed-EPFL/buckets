@@ -36,7 +36,12 @@ mod tests {
 
     use crate::Buckets;
 
-    use std::collections::{HashMap, HashSet};
+    use rand::prelude::*;
+
+    use std::{
+        collections::{HashMap, HashSet},
+        iter,
+    };
 
     #[test]
     fn single_set_then_check() {
@@ -70,6 +75,37 @@ mod tests {
         apply((&mut map, &mut set), keys, |(map, set), key| {
             assert_eq!(*map.get(&key).unwrap(), 42);
             assert!(set.contains(&key));
+        });
+    }
+
+    #[test]
+    fn shift() {
+        let mut source = Buckets::<HashMap<u64, usize>>::new();
+        let mut sink = Buckets::<HashMap<u64, usize>>::new();
+
+        let keys = Split::<u64>::with_key(0..50000, |key| *key);
+
+        apply((&mut source, &mut sink), keys, |(source, sink), key| {
+            source.insert(key, 1000);
+            sink.insert(key, 0);
+        });
+
+        for _ in 0..16 {
+            let keys = Split::<u64>::with_key(
+                iter::repeat_with(|| random::<u64>() % 50000).take(50000),
+                |key| *key,
+            );
+
+            apply((&mut source, &mut sink), keys, |(source, sink), key| {
+                *source.get_mut(&key).unwrap() -= 1;
+                *sink.get_mut(&key).unwrap() += 1;
+            });
+        }
+
+        let keys = Split::<u64>::with_key(0..50000, |key| *key);
+
+        apply((&mut source, &mut sink), keys, |(source, sink), key| {
+            assert_eq!(source.get(&key).unwrap() + sink.get(&key).unwrap(), 1000);
         });
     }
 }
