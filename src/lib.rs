@@ -1,4 +1,5 @@
 mod apply;
+mod apply_sparse;
 mod bucket_zip;
 mod buckets;
 mod key;
@@ -8,6 +9,6 @@ mod splittable;
 pub const BUCKETS: usize = 64;
 
 pub use crate::{
-    apply::apply, bucket_zip::BucketZip, buckets::Buckets, key::Key, split::Split,
-    splittable::Splittable,
+    apply::apply, apply_sparse::apply_sparse, bucket_zip::BucketZip, buckets::Buckets, key::Key,
+    split::Split, splittable::Splittable,
 };
