@@ -4,15 +4,15 @@ use rayon::prelude::*;
 
 pub fn apply_attached<Z, A, I, K, R>(
     mut buckets: Z,
-    attachment: A,
+    attachment: &A,
     split: Split<I>,
     kernel: K,
 ) -> Split<R>
 where
     Z: BucketZip,
-    A: Sync + Copy,
+    A: Sync,
     I: 'static + Send,
-    K: 'static + Send + Sync + Copy + Fn(&mut Z::Zip, A, I) -> R,
+    K: 'static + Send + Sync + Copy + Fn(&mut Z::Zip, &A, I) -> R,
     R: 'static + Send,
 {
     let zip = buckets.zip().into_par_iter();
@@ -25,7 +25,7 @@ where
         .map(|(mut inners, inputs)| {
             let outputs = inputs
                 .into_iter()
-                .map(|input| kernel(&mut inners, attachment, input))
+                .map(|input| kernel(&mut inners, &attachment, input))
                 .collect::<Vec<_>>();
 
             (inners, outputs)
@@ -54,8 +54,8 @@ mod tests {
         let mut map = Buckets::<HashMap<u64, usize>>::new();
         let keys = Split::<u64>::with_key(0..50000, |key| *key);
 
-        let keys = apply_attached(&mut map, 42, keys, |map, attachment, key| {
-            map.insert(key, attachment);
+        let keys = apply_attached(&mut map, &42, keys, |map, attachment, key| {
+            map.insert(key, *attachment);
             key
         });
 
@@ -73,10 +73,10 @@ mod tests {
 
         let keys = apply_attached(
             (&mut map, &mut set),
-            42,
+            &42,
             keys,
             |(map, set), attachment, key| {
-                map.insert(key, attachment);
+                map.insert(key, *attachment);
                 set.insert(key);
 
                 key

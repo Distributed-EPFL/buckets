@@ -4,15 +4,15 @@ use rayon::prelude::*;
 
 pub fn apply_sparse_attached<Z, A, I, K, R>(
     mut buckets: Z,
-    attachment: A,
+    attachment: &A,
     split: Split<I>,
     kernel: K,
 ) -> Vec<R>
 where
     Z: BucketZip,
-    A: Sync + Copy,
+    A: Sync,
     I: 'static + Send,
-    K: 'static + Send + Sync + Copy + Fn(&mut Z::Zip, A, I) -> Option<R>,
+    K: 'static + Send + Sync + Copy + Fn(&mut Z::Zip, &A, I) -> Option<R>,
     R: 'static + Send,
 {
     let zip = buckets.zip().into_par_iter();
@@ -25,7 +25,7 @@ where
         .map(|(mut inners, inputs)| {
             let outputs = inputs
                 .into_iter()
-                .filter_map(|input| kernel(&mut inners, attachment, input))
+                .filter_map(|input| kernel(&mut inners, &attachment, input))
                 .collect::<Vec<_>>();
 
             (inners, outputs)
@@ -61,11 +61,11 @@ mod tests {
             key
         });
 
-        let mut powers = apply_sparse_attached(&mut map, 33, keys, |map, attachment, key| {
+        let mut powers = apply_sparse_attached(&mut map, &33, keys, |map, attachment, key| {
             let value = *map.get(&key).unwrap();
 
             if value.count_ones() == 1 {
-                Some(value + attachment)
+                Some(value + *attachment)
             } else {
                 None
             }
